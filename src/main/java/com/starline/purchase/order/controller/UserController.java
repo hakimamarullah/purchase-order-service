@@ -17,6 +17,7 @@ import com.starline.purchase.order.service.AppUserService;
 import com.starline.purchase.order.utils.AuthUtils;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.annotation.security.RolesAllowed;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedModel;
@@ -65,7 +66,7 @@ public class UserController {
 
     @PutMapping
     @RolesAllowed({RoleConstant.ADMIN,RoleConstant.USER})
-    public ResponseEntity<ApiResponse<User>> updateUser(@RequestBody ResetPasswordRequest request, Principal principal) throws DataNotFoundException {
+    public ResponseEntity<ApiResponse<User>> updateUser(@Valid @RequestBody ResetPasswordRequest request, Principal principal) throws DataNotFoundException {
         ApiResponse<User> response = appUserService.resetUserPassword(AuthUtils.getCurrentUserId(principal), request);
         return ResponseEntity.ok(response);
     }

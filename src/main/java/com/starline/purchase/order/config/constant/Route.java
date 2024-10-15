@@ -8,20 +8,8 @@ Version 1.0
 */
 
 public class Route {
-
-
-    public static final String CART_ID = "/{cartId}";
-    public static final String ITEM_ID = "/{itemId}";
-    public static final String ITEM = "/item";
-    public static final String ORDERS = "/orders";
-    public static final String CHECKOUT = "/checkout";
-    public static final String MIDTRANS = "/midtrans";
-    public static final String NOTIFICATION = "/notification";
-    public static final String CHECK_EXPIRY = "/check-expiry";
-    public static final String ORDER_ID = "/{orderId}";
-    public static final String ADMIN = "/admin";
-    public static final String UPDATE_STATUS = "/update-status";
     public static final String USERS = "/users";
+    public static final String ITEMS = "/items";
 
     private Route() {}
 
@@ -29,22 +17,5 @@ public class Route {
     public static final String AUTH = "/auth";
     public static final String LOGIN = "/login";
     public static final String REGISTER = "/register";
-
-    public static final String USER_INFO = "/userInfo";
-
-    public static final String ADDRESS = "/address";
-
-    public static final String ADMIN_PRODUCTS = "/admin/products" ;
-    public static final String NEW_PRODUCT = "/new-product" ;
-    public static final String REMOVE = "/remove";
-    public static final String PRODUCT_ID_VAR = "/{productId}";
-
-    public static final String PRODUCTS = "/products";
-
-    public static final String AVAILABLE = "/available";
-
-    public static final String CART = "/cart";
-
-    public static final String ADD_ITEM = "/add-item";
 
 }
