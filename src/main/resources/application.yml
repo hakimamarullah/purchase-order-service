@@ -1,0 +1,45 @@
+spring:
+  profiles:
+    active:
+      - local
+  application:
+    name: purchase-order-service
+  config:
+    import: optional:configserver:${SPRING_CLOUD_CONFIG_URI:http://localhost:8888?max-attempt=5}
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3308}/micro?useSSL=false&allowPublicKeyRetrieval=true&useLegacyDatetimeCode=false&serverTimezone=Asia/Jakarta
+    username: ${MYSQL_USER}
+    password: ${MYSQL_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  output:
+    ansi.enabled: ALWAYS
+
+app:
+  JWT_TOKEN_AGE: 3600
+  JWT_ISSUER: purchase-order-service
+
+springdoc:
+  swagger-ui:
+    path: /
+  api-docs:
+    enabled: true
+    path: /rest-api-docs
+
+jwt:
+  public:
+    key: |
+      -----BEGIN PUBLIC KEY-----
+     
+      -----END PUBLIC KEY-----
+  private:
+    key: |
+      -----BEGIN PRIVATE KEY-----
+      
+      -----END PRIVATE KEY-----
+
+cors:
+  allowed:
+    origins: '*'
