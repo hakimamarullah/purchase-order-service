@@ -15,6 +15,7 @@ import com.starline.purchase.order.exception.DataNotFoundException;
 import com.starline.purchase.order.model.User;
 import com.starline.purchase.order.service.AppUserService;
 import com.starline.purchase.order.utils.AuthUtils;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
@@ -44,6 +45,7 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
+    @Operation(summary = "Get user by id")
     @RolesAllowed({RoleConstant.ADMIN})
     public ResponseEntity<ApiResponse<User>> getUserById(@PathVariable Integer userId) throws DataNotFoundException {
         ApiResponse<User> response = appUserService.getUserById(userId);
@@ -51,6 +53,7 @@ public class UserController {
     }
 
     @GetMapping
+    @Operation(summary = "Get all users", description = "Get all users with pagination")
     @RolesAllowed({RoleConstant.ADMIN})
     public ResponseEntity<ApiResponse<PagedModel<User>>> getUsers(@ParameterObject Pageable pageable) {
         ApiResponse<PagedModel<User>> response = appUserService.getUsers(pageable);
@@ -58,6 +61,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}")
+    @Operation(summary = "Delete user by id")
     @RolesAllowed({RoleConstant.ADMIN})
     public ResponseEntity<ApiResponse<Object>> deleteUserById(@PathVariable Integer userId) {
         ApiResponse<Object> response = appUserService.deleteUserById(userId);
@@ -65,6 +69,7 @@ public class UserController {
     }
 
     @PutMapping
+    @Operation(summary = "Reset user password")
     @RolesAllowed({RoleConstant.ADMIN,RoleConstant.USER})
     public ResponseEntity<ApiResponse<User>> updateUser(@Valid @RequestBody ResetPasswordRequest request, Principal principal) throws DataNotFoundException {
         ApiResponse<User> response = appUserService.resetUserPassword(AuthUtils.getCurrentUserId(principal), request);

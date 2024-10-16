@@ -21,6 +21,10 @@ public class PurchaseOrderResponse {
     private Integer totalPrice;
     private String description;
     private LocalDateTime dateTime;
+    private String createdBy;
+    private String updatedBy;
+    private LocalDateTime updatedDatetime;
+    private LocalDateTime createdDatetime;
 
     public void setId(Integer id) {
         this.pohId = id;

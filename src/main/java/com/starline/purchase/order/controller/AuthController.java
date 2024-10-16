@@ -14,6 +14,7 @@ import com.starline.purchase.order.dto.response.ApiResponse;
 import com.starline.purchase.order.dto.response.LoginResponse;
 import com.starline.purchase.order.dto.response.RegisterResponse;
 import com.starline.purchase.order.service.AppUserService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -34,12 +35,14 @@ public class AuthController {
     }
 
     @PostMapping(Route.LOGIN)
+    @Operation(summary = "Login user", description = "Login user with email and password")
     public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody @Valid LoginRequest request) {
         ApiResponse<LoginResponse> response = appUserService.login(request);
         return ResponseEntity.status(response.getHttpStatus()).body(response);
     }
 
     @PostMapping(Route.REGISTER)
+    @Operation(summary = "Register user", description = "Register user with email and password and additional information")
     public ResponseEntity<ApiResponse<RegisterResponse>> register(@RequestBody @Valid RegisterRequest request) {
         ApiResponse<RegisterResponse> response = appUserService.registerUser(request);
         return ResponseEntity.status(response.getHttpStatus()).body(response);

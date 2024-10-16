@@ -79,6 +79,7 @@ public class User extends BaseModel implements UserDetails, Serializable {
         return String.valueOf(this.email);
     }
 
+
     @JsonIgnore
     @Override
     public boolean isAccountNonExpired() {

@@ -76,7 +76,7 @@ public class AppUserService {
 
     public ApiResponse<LoginResponse> login(LoginRequest loginRequest) {
         Authentication authentication;
-        loginRequest.setEmail(CommonUtils.formatPhoneNumber(loginRequest.getEmail()));
+
         try {
             authentication = authenticationProvider.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
         } catch (BadCredentialsException | DisabledException ex) {
@@ -89,9 +89,10 @@ public class AppUserService {
         User user = (User) authentication.getPrincipal();
 
         Instant now = Instant.now();
-        String scope = authentication.getAuthorities().parallelStream()
+        String scope = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(" "));
+
         JwtClaimsSet claim = JwtClaimsSet.builder()
                 .issuer(appProperties.getJWT_ISSUER())
                 .issuedAt(now)
@@ -154,7 +155,7 @@ public class AppUserService {
         User user = userRepository.findById(id).orElseThrow(() -> new DataNotFoundException("user not found"));
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         userRepository.save(user);
-        return ApiResponse.setSuccess(user, "user updated");
+        return ApiResponse.setSuccess(user, "password has been reset successfully");
     }
 
 }
