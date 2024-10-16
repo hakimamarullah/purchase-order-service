@@ -18,54 +18,61 @@ import com.starline.purchase.order.service.ItemService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.security.Principal;
-
 @RestController
 @RequestMapping(Route.API_V1 + Route.ITEMS)
 @SecurityRequirement(name = "bearerJWT")
 public class ItemController {
-    
+
     private final ItemService itemService;
 
     public ItemController(ItemService itemService) {
         this.itemService = itemService;
     }
 
+
+
+    @PostMapping
+    @RolesAllowed({RoleConstant.ADMIN})
+    public ResponseEntity<ApiResponse<Item>> createItem(@Valid @RequestBody ItemDto request) {
+        ApiResponse<Item> response = itemService.createItem(request);
+        return ResponseEntity.status(response.getHttpStatus()).body(response);
+    }
     @GetMapping("/{itemId}")
     public ResponseEntity<ApiResponse<Item>> getItemById(@PathVariable Integer itemId) throws DataNotFoundException {
         ApiResponse<Item> response = itemService.getItemById(itemId);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(response.getHttpStatus()).body(response);
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<PagedModel<Item>>> getItems(@PageableDefault() Pageable pageable) {
+    public ResponseEntity<ApiResponse<PagedModel<Item>>> getItems(@ParameterObject Pageable pageable) {
         ApiResponse<PagedModel<Item>> response = itemService.getItems(pageable);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(response.getHttpStatus()).body(response);
     }
 
     @DeleteMapping("/{itemId}")
     @RolesAllowed({RoleConstant.ADMIN})
     public ResponseEntity<ApiResponse<Object>> deleteItemById(@PathVariable Integer itemId) {
         ApiResponse<Object> response = itemService.deleteItemById(itemId);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(response.getHttpStatus()).body(response);
     }
 
     @PutMapping
     @RolesAllowed({RoleConstant.ADMIN})
-    public ResponseEntity<ApiResponse<Item>> updateItem(@Valid @RequestBody ItemDto request, Principal principal) throws RestApiException {
+    public ResponseEntity<ApiResponse<Item>> updateItem(@Valid @RequestBody ItemDto request) throws RestApiException {
         ApiResponse<Item> response = itemService.updateItem(request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(response.getHttpStatus()).body(response);
     }
 }

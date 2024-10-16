@@ -7,6 +7,7 @@ Created on 10/15/2024 9:15 PM
 Version 1.0
 */
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -49,7 +50,8 @@ public class PurchaseOrderHeader extends BaseModel {
     @Column(name = "total_cost")
     private Integer totalCost;
 
-    @OneToMany(mappedBy = "purchaseOrderHeader")
+    @OneToMany(mappedBy = "purchaseOrderHeader", orphanRemoval = true)
+    @JsonManagedReference
     private List<PurchaseOrderDetail> purchaseOrderDetails;
 
 }

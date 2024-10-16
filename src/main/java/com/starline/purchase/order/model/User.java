@@ -37,7 +37,7 @@ import java.util.Optional;
 public class User extends BaseModel implements UserDetails, Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "id")
     private Integer id;
 

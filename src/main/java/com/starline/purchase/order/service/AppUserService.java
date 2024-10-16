@@ -22,6 +22,7 @@ import com.starline.purchase.order.utils.CommonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.web.PagedModel;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -102,11 +103,7 @@ public class AppUserService {
 
         LoginResponse loginResponse = mapper.convertValue(user, LoginResponse.class);
         loginResponse.setAccessToken(token);
-        return ApiResponse.<LoginResponse>builder()
-                .code(200)
-                .data(loginResponse)
-                .message("login successful")
-                .build();
+        return ApiResponse.setSuccess(loginResponse, "Login Successful");
     }
 
     @Transactional
@@ -136,34 +133,28 @@ public class AppUserService {
 
     public ApiResponse<User> getUserById(Integer userId) throws DataNotFoundException {
         User user = userRepository.findById(userId).orElseThrow(() -> new DataNotFoundException("user not found"));
-        return ApiResponse.<User>builder().data(user).build();
+        return ApiResponse.setSuccess(user);
     }
 
     public ApiResponse<PagedModel<User>> getUsers(Pageable pageable) {
         Page<User> users = userRepository.findAll(pageable);
-        return ApiResponse.<PagedModel<User>>builder()
-                .data(new PagedModel<>(users))
-                .build();
-    }
-
-    public ApiResponse<Object> deleteUserById(Integer userId) {
-        int count = userRepository.deleteUserById(userId);
-        return ApiResponse.builder()
-                .code(200)
-                .message(String.format("%d user deleted", count))
-                .build();
+        return ApiResponse.setSuccess(new PagedModel<>(users));
     }
 
     @Transactional
+    @Modifying
+    public ApiResponse<Object> deleteUserById(Integer userId) {
+        int count = userRepository.deleteUserById(userId);
+        return ApiResponse.setSuccess(count, String.format("%d user deleted", count));
+    }
+
+    @Transactional
+    @Modifying
     public ApiResponse<User> resetUserPassword(Integer id, ResetPasswordRequest request) throws DataNotFoundException {
         User user = userRepository.findById(id).orElseThrow(() -> new DataNotFoundException("user not found"));
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         userRepository.save(user);
-        return ApiResponse.<User>builder()
-                .code(200)
-                .message("user updated")
-                .data(user)
-                .build();
+        return ApiResponse.setSuccess(user, "user updated");
     }
 
 }

@@ -18,8 +18,8 @@ import com.starline.purchase.order.utils.AuthUtils;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -47,27 +47,27 @@ public class UserController {
     @RolesAllowed({RoleConstant.ADMIN})
     public ResponseEntity<ApiResponse<User>> getUserById(@PathVariable Integer userId) throws DataNotFoundException {
         ApiResponse<User> response = appUserService.getUserById(userId);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(response.getHttpStatus()).body(response);
     }
 
     @GetMapping
     @RolesAllowed({RoleConstant.ADMIN})
-    public ResponseEntity<ApiResponse<PagedModel<User>>> getUsers(@PageableDefault() Pageable pageable) {
+    public ResponseEntity<ApiResponse<PagedModel<User>>> getUsers(@ParameterObject Pageable pageable) {
         ApiResponse<PagedModel<User>> response = appUserService.getUsers(pageable);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(response.getHttpStatus()).body(response);
     }
 
     @DeleteMapping("/{userId}")
     @RolesAllowed({RoleConstant.ADMIN})
     public ResponseEntity<ApiResponse<Object>> deleteUserById(@PathVariable Integer userId) {
         ApiResponse<Object> response = appUserService.deleteUserById(userId);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(response.getHttpStatus()).body(response);
     }
 
     @PutMapping
     @RolesAllowed({RoleConstant.ADMIN,RoleConstant.USER})
     public ResponseEntity<ApiResponse<User>> updateUser(@Valid @RequestBody ResetPasswordRequest request, Principal principal) throws DataNotFoundException {
         ApiResponse<User> response = appUserService.resetUserPassword(AuthUtils.getCurrentUserId(principal), request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(response.getHttpStatus()).body(response);
     }
 }

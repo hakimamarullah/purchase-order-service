@@ -8,6 +8,7 @@ Version 1.0
 */
 
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.starline.purchase.order.dto.response.ApiResponse;
 import com.starline.purchase.order.exception.RestApiException;
@@ -34,6 +35,7 @@ public class GlobalControllerAdvice {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        log.error(ex.getMessage(), ex);
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getAllErrors().forEach(error -> {
             String fieldName = ((FieldError) error).getField();
@@ -49,7 +51,7 @@ public class GlobalControllerAdvice {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<String>> internalServerError(Exception ex) {
-        log.error("[INTERNAL SERVER ERROR] {}", ex.getMessage(), ex);
+        log.error(ex.getMessage(), ex);
         ApiResponse<String> response = new ApiResponse<>();
         response.setCode(500);
         response.setMessage(ex.getMessage());
@@ -82,6 +84,7 @@ public class GlobalControllerAdvice {
 
     @ExceptionHandler({DataIntegrityViolationException.class})
     public ResponseEntity<ApiResponse<String>> dataIntegrityViolationHandler(DataIntegrityViolationException ex) {
+        log.error(ex.getMessage(), ex);
         ApiResponse<String> response = new ApiResponse<>();
         response.setCode(400);
         response.setMessage(ex.getMostSpecificCause().getLocalizedMessage());
@@ -102,6 +105,7 @@ public class GlobalControllerAdvice {
 
     @ExceptionHandler(RestApiException.class)
     public ResponseEntity<ApiResponse<String>> restApiExceptionHandler(RestApiException ex) {
+        log.error(ex.getMessage(), ex);
         ApiResponse<String> response = new ApiResponse<>();
         response.setCode(ex.getHttpCode());
         response.setMessage(ex.getMessage());
@@ -110,8 +114,9 @@ public class GlobalControllerAdvice {
         return new ResponseEntity<>(response, HttpStatus.valueOf(ex.getHttpCode()));
     }
 
-    @ExceptionHandler({InvalidFormatException.class})
+    @ExceptionHandler({InvalidFormatException.class, JsonParseException.class})
     public ResponseEntity<ApiResponse<String>> jsonExceptionHandler(Exception ex) {
+        log.error(ex.getMessage(), ex);
         ApiResponse<String> response = new ApiResponse<>();
         response.setCode(400);
         response.setMessage(ex.getMessage());

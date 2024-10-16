@@ -26,19 +26,28 @@ public class ApiResponse<T> {
 
 
 
-    public static <U> ApiResponse<U> setSuccess() {
+    public static <U> ApiResponse<U> setSuccess(U data, String message) {
         return ApiResponse.<U>builder()
                 .code(200)
-                .message("Success")
-                .build();
-    }
-
-    public  static ApiResponse<Void> setSuccess(String message) {
-        return ApiResponse.<Void>builder()
-                .code(200)
+                .data(data)
                 .message(message)
                 .build();
     }
+
+    public static ApiResponse<Void> setSuccess(String message) {
+        return setSuccess(null, message);
+    }
+
+    public static <U> ApiResponse<U> setSuccess() {
+        return setSuccess(null, "Success");
+    }
+
+    public static <U> ApiResponse<U> setSuccess(U data) {
+        return setSuccess(data, "Success");
+    }
+
+
+
 
     @JsonIgnore
     public HttpStatus getHttpStatus() {

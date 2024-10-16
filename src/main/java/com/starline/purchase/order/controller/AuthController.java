@@ -36,13 +36,13 @@ public class AuthController {
     @PostMapping(Route.LOGIN)
     public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody @Valid LoginRequest request) {
         ApiResponse<LoginResponse> response = appUserService.login(request);
-        return new ResponseEntity<>(response, response.getHttpStatus());
+        return ResponseEntity.status(response.getHttpStatus()).body(response);
     }
 
     @PostMapping(Route.REGISTER)
     public ResponseEntity<ApiResponse<RegisterResponse>> register(@RequestBody @Valid RegisterRequest request) {
         ApiResponse<RegisterResponse> response = appUserService.registerUser(request);
-        return new ResponseEntity<>(response, response.getHttpStatus());
+        return ResponseEntity.status(response.getHttpStatus()).body(response);
     }
 
 }

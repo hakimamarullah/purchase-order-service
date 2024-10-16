@@ -43,3 +43,11 @@ jwt:
 cors:
   allowed:
     origins: '*'
+
+logging:
+  level:
+    org:
+      springframework:
+        web:
+          filter:
+            CommonsRequestLoggingFilter: TRACE

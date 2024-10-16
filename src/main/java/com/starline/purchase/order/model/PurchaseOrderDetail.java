@@ -7,6 +7,7 @@ Created on 10/15/2024 9:18 PM
 Version 1.0
 */
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -19,6 +20,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Table(name = "po_d")
@@ -29,16 +32,20 @@ import lombok.Setter;
 public class PurchaseOrderDetail extends BaseModel {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "id", nullable = false)
     private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "item_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonBackReference
     private Item item;
 
     @ManyToOne
     @JoinColumn(name = "poh_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonBackReference
     private PurchaseOrderHeader purchaseOrderHeader;
 
     @Column(name = "item_qty")

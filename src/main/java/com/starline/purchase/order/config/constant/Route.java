@@ -10,6 +10,7 @@ Version 1.0
 public class Route {
     public static final String USERS = "/users";
     public static final String ITEMS = "/items";
+    public static final String PURCHASE_ORDERS = "/purchase-orders";
 
     private Route() {}
 

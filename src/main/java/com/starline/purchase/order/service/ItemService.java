@@ -16,6 +16,7 @@ import com.starline.purchase.order.model.Item;
 import com.starline.purchase.order.repository.ItemRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.web.PagedModel;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,37 +32,37 @@ public class ItemService {
         this.mapper = mapper;
     }
 
+    public ApiResponse<Item> createItem(ItemDto itemDto) {
+        Item item = mapper.convertValue(itemDto, Item.class);
+        item = itemRepository.save(item);
+        return ApiResponse.setSuccess(item, "Item Created");
+    }
+
     public ApiResponse<Item> getItemById(Integer id) throws DataNotFoundException {
         Item user = itemRepository.findById(id).orElseThrow(() -> new DataNotFoundException("item not found"));
-        return ApiResponse.<Item>builder().data(user).build();
+        return ApiResponse.setSuccess(user);
     }
 
     public ApiResponse<PagedModel<Item>> getItems(Pageable pageable) {
         Page<Item> users = itemRepository.findAll(pageable);
-        return ApiResponse.<PagedModel<Item>>builder()
-                .data(new PagedModel<>(users))
-                .build();
-    }
-
-    public ApiResponse<Object> deleteItemById(Integer userId) {
-        int count = itemRepository.deleteItemById(userId);
-        return ApiResponse.builder()
-                .code(200)
-                .message(String.format("%d item deleted", count))
-                .build();
+        return ApiResponse.setSuccess(new PagedModel<>(users));
     }
 
     @Transactional
+    @Modifying
+    public ApiResponse<Object> deleteItemById(Integer userId) {
+        int count = itemRepository.deleteItemById(userId);
+        return ApiResponse.setSuccess(count, String.format("%d item deleted", count));
+    }
+
+    @Transactional
+    @Modifying
     public ApiResponse<Item> updateItem(ItemDto itemDto) throws RestApiException {
         if (itemDto.getId() == null) {
             throw new RestApiException("item id is required", 400);
         }
         Item item = mapper.convertValue(itemDto, Item.class);
         item = itemRepository.save(item);
-        return ApiResponse.<Item>builder()
-                .code(200)
-                .message("item updated")
-                .data(item)
-                .build();
+        return ApiResponse.setSuccess(item, "Item Updated");
     }
 }
