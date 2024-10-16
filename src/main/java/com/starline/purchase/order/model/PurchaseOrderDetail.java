@@ -39,13 +39,13 @@ public class PurchaseOrderDetail extends BaseModel {
     @ManyToOne
     @JoinColumn(name = "item_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JsonBackReference
+    @JsonBackReference("item-purchaseOrderDetail")
     private Item item;
 
     @ManyToOne
     @JoinColumn(name = "poh_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JsonBackReference
+    @JsonBackReference("purchaseOrderHeader-purchaseOrderDetail")
     private PurchaseOrderHeader purchaseOrderHeader;
 
     @Column(name = "item_qty")

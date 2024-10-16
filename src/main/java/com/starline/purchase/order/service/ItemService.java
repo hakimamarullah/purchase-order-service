@@ -35,7 +35,11 @@ public class ItemService {
     public ApiResponse<Item> createItem(ItemDto itemDto) {
         Item item = mapper.convertValue(itemDto, Item.class);
         item = itemRepository.save(item);
-        return ApiResponse.setSuccess(item, "Item Created");
+        return ApiResponse.<Item>builder()
+                .code(201)
+                .data(item)
+                .message("Item Created")
+                .build();
     }
 
     public ApiResponse<Item> getItemById(Integer id) throws DataNotFoundException {
@@ -61,7 +65,12 @@ public class ItemService {
         if (itemDto.getId() == null) {
             throw new RestApiException("item id is required", 400);
         }
-        Item item = mapper.convertValue(itemDto, Item.class);
+
+        Item item = itemRepository.findById(itemDto.getId()).orElseThrow(() -> new DataNotFoundException("item not found"));
+        item.setName(itemDto.getName());
+        item.setCost(itemDto.getCost());
+        item.setPrice(itemDto.getPrice());
+        item.setDescription(itemDto.getDescription());
         item = itemRepository.save(item);
         return ApiResponse.setSuccess(item, "Item Updated");
     }

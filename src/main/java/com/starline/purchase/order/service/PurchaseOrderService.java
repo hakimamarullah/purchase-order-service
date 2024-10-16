@@ -89,7 +89,11 @@ public class PurchaseOrderService {
         PurchaseOrderResponse poResponse = PurchaseOrderHeaderMapper.INSTANCE.toPurchaseOrderResponse(poHeader);
 
         log.info("END CREATE PURCHASE ORDER {}", mapper.writeValueAsString(poResponse));
-        return ApiResponse.setSuccess(poResponse, "Purchase Order Created");
+        return ApiResponse.<PurchaseOrderResponse>builder()
+                .code(201)
+                .data(poResponse)
+                .message("Purchase Order Created")
+                .build();
     }
 
     public ApiResponse<PagedModel<PurchaseOrderResponse>> getAllPurchaseOrders(Pageable pageable) {
@@ -178,7 +182,7 @@ public class PurchaseOrderService {
             purchaseOrderDetailRepository.save(newPoDetail);
             purchaseOrderDetails.add(newPoDetail);
         }
-        
+
         poHeader.setPurchaseOrderDetails(purchaseOrderDetails);
         int totalCost = getTotalCost(purchaseOrderDetails);
         int totalPrice = getTotalPrice(purchaseOrderDetails);

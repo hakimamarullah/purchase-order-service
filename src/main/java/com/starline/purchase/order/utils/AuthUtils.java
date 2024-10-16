@@ -29,8 +29,4 @@ public class AuthUtils {
         return Integer.parseInt(subject.split(",")[0]);
     }
 
-    public static String getCurrentUsername(String subject) {
-        return subject.split(",")[1];
-    }
-
 }

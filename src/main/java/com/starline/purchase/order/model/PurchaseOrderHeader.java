@@ -51,7 +51,7 @@ public class PurchaseOrderHeader extends BaseModel {
     private Integer totalCost;
 
     @OneToMany(mappedBy = "purchaseOrderHeader", orphanRemoval = true)
-    @JsonManagedReference
+    @JsonManagedReference("purchaseOrderHeader-purchaseOrderDetail")
     private List<PurchaseOrderDetail> purchaseOrderDetails;
 
 }
