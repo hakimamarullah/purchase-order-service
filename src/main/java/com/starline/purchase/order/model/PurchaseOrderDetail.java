@@ -56,6 +56,4 @@ public class PurchaseOrderDetail extends BaseModel {
 
     @Column(name = "item_price")
     private Integer itemPrice;
-
-
 }

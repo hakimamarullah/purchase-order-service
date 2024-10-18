@@ -37,6 +37,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 @Service
 @Slf4j
@@ -138,13 +140,12 @@ public class PurchaseOrderService {
             purchaseOrderHeader.setTotalCost(totalCost);
             purchaseOrderHeader.setTotalPrice(totalPrice);
             purchaseOrderHeaderRepository.save(purchaseOrderHeader);
-            return ApiResponse.setSuccess(null, "Success Delete Purchase Order Item Quantity");
+            return ApiResponse.setSuccess(null, "Success Delete Purchase Order Item");
         }
         poDetail.setItemQty(changePohItemQuantityReq.getNewQty());
         purchaseOrderDetailRepository.save(poDetail);
 
         PurchaseOrderHeader purchaseOrderHeader = purchaseOrderHeaderRepository.findById(changePohItemQuantityReq.getPohId()).orElseThrow(() -> new DataNotFoundException(MessageConstant.PURCHASE_ORDER_DOES_NOT_EXIST));
-
         List<PurchaseOrderDetail> purchaseOrderDetails = purchaseOrderHeader.getPurchaseOrderDetails();
 
 
@@ -160,36 +161,45 @@ public class PurchaseOrderService {
         return ApiResponse.setSuccess(purchaseOrderResponse, "Success Update Purchase Order Item Quantity");
     }
 
-    public ApiResponse<PurchaseOrderResponse> addNewItemToPurchaseOrder(AddItemPo addItemPo) throws JsonProcessingException, DataNotFoundException {
+    @Transactional
+    @Modifying
+    public ApiResponse<PurchaseOrderResponse> addNewItemToPurchaseOrder(AddItemPo addItemPo) throws JsonProcessingException, DataNotFoundException, ExecutionException, InterruptedException {
         log.info("START ADD NEW ITEM TO PURCHASE ORDER {}", mapper.writeValueAsString(addItemPo));
-        PurchaseOrderHeader poHeader = purchaseOrderHeaderRepository.findById(addItemPo.getPohId()).orElseThrow(() -> new DataNotFoundException(MessageConstant.PURCHASE_ORDER_DOES_NOT_EXIST));
-        Item item = itemRepository.findById(addItemPo.getItemId()).orElseThrow(() -> new DataNotFoundException("Item Does Not Exist"));
-        Optional<PurchaseOrderDetail> poDetail = purchaseOrderDetailRepository.findByPurchaseOrderHeaderIdAndItemId(addItemPo.getPohId(), addItemPo.getItemId());
+        CompletableFuture<Optional<Item>> futureItem = CompletableFuture.supplyAsync(() -> itemRepository.findById(addItemPo.getItemId()));
+        CompletableFuture<Optional<PurchaseOrderDetail>> futurePoDetail = CompletableFuture.supplyAsync(() -> purchaseOrderDetailRepository.findByPurchaseOrderHeaderIdAndItemId(addItemPo.getPohId(), addItemPo.getItemId()));
 
-        List<PurchaseOrderDetail> purchaseOrderDetails = poHeader.getPurchaseOrderDetails();
+        CompletableFuture.allOf(futureItem, futurePoDetail).join();
 
-        if (poDetail.isPresent()) {
-            poDetail.get().setItemQty(poDetail.get().getItemQty() + addItemPo.getQuantity());
-            purchaseOrderDetailRepository.save(poDetail.get());
-            purchaseOrderDetails.add(poDetail.get());
+        Item item = getValueOptional(futureItem).orElseThrow(() -> new DataNotFoundException(MessageConstant.ITEM_DOES_NOT_EXIST));
+        PurchaseOrderDetail poDetail = getValueOptional(futurePoDetail).orElseThrow(() -> new DataNotFoundException(MessageConstant.PURCHASE_ORDER_DOES_NOT_EXIST));
+
+
+
+        if (poDetail != null) {
+            poDetail.setItemQty(poDetail.getItemQty() + addItemPo.getQuantity());
+            purchaseOrderDetailRepository.saveAndFlush(poDetail);
         } else {
             PurchaseOrderDetail newPoDetail = new PurchaseOrderDetail();
+            PurchaseOrderHeader poHeader = new PurchaseOrderHeader();
+            poHeader.setId(addItemPo.getPohId());
             newPoDetail.setPurchaseOrderHeader(poHeader);
             newPoDetail.setItem(item);
             newPoDetail.setItemPrice(item.getPrice());
             newPoDetail.setItemCost(item.getCost());
             newPoDetail.setItemQty(addItemPo.getQuantity());
-            purchaseOrderDetailRepository.save(newPoDetail);
-            purchaseOrderDetails.add(newPoDetail);
+            purchaseOrderDetailRepository.saveAndFlush(newPoDetail);
         }
 
-        poHeader.setPurchaseOrderDetails(purchaseOrderDetails);
-        int totalCost = getTotalCost(purchaseOrderDetails);
-        int totalPrice = getTotalPrice(purchaseOrderDetails);
+
+        PurchaseOrderHeader poHeader = purchaseOrderHeaderRepository.findById(addItemPo.getPohId()).orElseThrow(() -> new DataNotFoundException(MessageConstant.PURCHASE_ORDER_DOES_NOT_EXIST));
+        int totalCost = getTotalCost(poHeader.getPurchaseOrderDetails());
+        int totalPrice = getTotalPrice(poHeader.getPurchaseOrderDetails());
         poHeader.setTotalCost(totalCost);
         poHeader.setTotalPrice(totalPrice);
-        purchaseOrderHeaderRepository.save(poHeader);
+
+        purchaseOrderHeaderRepository.saveAndFlush(poHeader);
         PurchaseOrderResponse purchaseOrderResponse = PurchaseOrderHeaderMapper.INSTANCE.toPurchaseOrderResponse(poHeader);
+
         log.info("SUCCESS ADD NEW ITEM TO PURCHASE ORDER {}", mapper.writeValueAsString(purchaseOrderResponse));
         return ApiResponse.setSuccess(purchaseOrderResponse, "Success Add New Item To Purchase Order");
 
@@ -201,6 +211,10 @@ public class PurchaseOrderService {
 
     private int getTotalPrice(List<PurchaseOrderDetail> purchaseOrderDetails) {
         return purchaseOrderDetails.stream().map(itemDetails -> itemDetails.getItemPrice() * itemDetails.getItemQty()).reduce(0, Integer::sum);
+    }
+
+    private <T> Optional<T> getValueOptional(CompletableFuture<Optional<T>> future) throws ExecutionException, InterruptedException {
+        return future.get();
     }
 
 }

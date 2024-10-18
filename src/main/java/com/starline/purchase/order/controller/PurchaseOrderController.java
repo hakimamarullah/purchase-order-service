@@ -33,6 +33,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.concurrent.ExecutionException;
+
 @RestController
 @RequestMapping(Route.API_V1 + Route.PURCHASE_ORDERS)
 @SecurityRequirement(name = "bearerJWT")
@@ -88,7 +90,7 @@ public class PurchaseOrderController {
 
     @PostMapping("/item/add")
     @Operation(summary = "Add item to purchase order", description = "If item already exist in po_d then the quantity will be increased")
-    public ResponseEntity<ApiResponse<PurchaseOrderResponse>> addItemToPurchaseOrder(@Valid @RequestBody AddItemPo addItemPo) throws DataNotFoundException, JsonProcessingException {
+    public ResponseEntity<ApiResponse<PurchaseOrderResponse>> addItemToPurchaseOrder(@Valid @RequestBody AddItemPo addItemPo) throws DataNotFoundException, JsonProcessingException, ExecutionException, InterruptedException {
         ApiResponse<PurchaseOrderResponse> apiResponse = purchaseOrderService.addNewItemToPurchaseOrder(addItemPo);
         return ResponseEntity.status(apiResponse.getHttpStatus()).body(apiResponse);
     }

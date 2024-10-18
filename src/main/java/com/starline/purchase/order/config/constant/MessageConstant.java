@@ -9,4 +9,5 @@ Version 1.0
 
 public class MessageConstant {
     public static final String PURCHASE_ORDER_DOES_NOT_EXIST = "Purchase Order Does Not Exist";
+    public static final String ITEM_DOES_NOT_EXIST = "Item Does Not Exist";
 }

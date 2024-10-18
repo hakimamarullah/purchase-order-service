@@ -10,7 +10,7 @@ Version 1.0
 import lombok.Getter;
 
 @Getter
-public class RestApiException extends Exception {
+public class RestApiException extends RuntimeException {
 
     private final int httpCode;
 
