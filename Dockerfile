@@ -36,11 +36,15 @@ FROM debian:stretch-slim
 ENV JAVA_OPTS=""
 ENV JAVA_ARGS=""
 ENV JAVA_HOME=/opt/java/openjdk
-ENV PATH "${JAVA_HOME}/bin:${PATH}"
+ENV PATH="${JAVA_HOME}/bin:${PATH}"
 
 COPY --from=jre-build /javaruntime $JAVA_HOME
 
 RUN mkdir /opt/app
 COPY --from=jre-build /opt/app/*.jar /opt/app/*.jar
 EXPOSE 8080
-ENTRYPOINT java ${JAVA_OPTS} -jar /opt/app/*jar ${JAVA_ARGS}
+RUN echo "#!/bin/sh\njava \${JAVA_OPTS} -jar /opt/app/*jar \${JAVA_ARGS}" > ./entrypoint.sh \
+    && chmod +x ./entrypoint.sh
+
+# Use the exec form of the ENTRYPOINT instruction
+ENTRYPOINT ["./entrypoint.sh"]
